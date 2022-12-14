@@ -121,10 +121,10 @@ fi
 
 # Fix for broken sensor readings
 if [ -f /boot/config/plugins/dynamix.system.temp/sensors.conf ]; then
-  sed -i '/quadro-hid/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
+  sed -i '/quadro-hid-3-b/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
 fi
 if [ -f /etc/sensors.d/sensors.conf ]; then
-  sed -i '/quadro-hid/,+1d' /etc/sensors.d/sensors.conf
+  sed -i '/quadro-hid-3-b/,+1d' /etc/sensors.d/sensors.conf
 fi
 
 </INLINE>
