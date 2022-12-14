@@ -119,13 +119,13 @@ if [ ! -f "&emhttp;/images/&name;.png" ]; then
   cp &plugin;/&name;.png &emhttp;/images/
 fi
 
-## Fix for broken sensor readings
-#if [ -f /boot/config/plugins/dynamix.system.temp/sensors.conf ]; then
-#  sed -i '/quadro-hid/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
-#fi
-#if [ -f /etc/sensors.d/sensors.conf ]; then
-#  sed -i '/quadro-hid/,+1d' /etc/sensors.d/sensors.conf
-#fi
+# Fix for broken sensor readings
+if [ -f /boot/config/plugins/dynamix.system.temp/sensors.conf ]; then
+  sed -i '/quadro-hid/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
+fi
+if [ -f /etc/sensors.d/sensors.conf ]; then
+  sed -i '/quadro-hid/,+1d' /etc/sensors.d/sensors.conf
+fi
 
 </INLINE>
 </FILE>
