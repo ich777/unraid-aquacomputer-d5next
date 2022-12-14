@@ -1,0 +1,148 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+  <!ENTITY name      "aquacomputer-d5next-hwmon">
+  <!ENTITY author    "ich777">
+  <!ENTITY version   "2022.12.14">
+  <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-aquacomputer-d5next/master">
+  <!ENTITY pluginURL "&gitURL;/&name;.plg">
+  <!ENTITY plugin    "/boot/config/plugins/&name;">
+  <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+  <!ENTITY packages  "/boot/config/plugins/&name;/packages">
+]>
+
+<PLUGIN  name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" min="6.11.0">
+
+<CHANGES>
+
+###2022.07.26
+- Initial release
+
+</CHANGES>
+
+<FILE Name="&emhttp;/README.md">
+<INLINE>
+**Aquacomputer D5 Next hwmon**
+
+This package contains a hwmon Linux Kernel driver for exposing sensors from various Aquacomputer devices (D5 Next, Quadro, Aquastream XT,...). You can get more details here: https://github.com/aleksamagicka/aquacomputer_d5next-hwmon
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash">
+<INLINE>
+
+download() {
+# Download acd5next package
+if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}" "${DL_URL}/${LAT_PACKAGE}" ; then
+  wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}.md5" "${DL_URL}/${LAT_PACKAGE}.md5"
+  if [ "$(md5sum &packages;/${KERNEL_V%%-*}/${LAT_PACKAGE} | awk '{print $1}')" != "$(cat &packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}.md5 | awk '{print $1}')" ]; then
+    echo
+    echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR------"
+    echo "--------------------------------CHECKSUM ERROR!---------------------------------"
+    rm -rf &plugin; &emhttp;
+    exit 1
+  fi
+  echo
+  echo "-----Successfully downloaded Aquacomputer D5Next package, please wait...!------"
+else
+  echo
+  echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR-----"
+  echo "------------------Can't download Aquacomputer D5Next package-------------------"
+  rm -rf &plugin; &emhttp;
+  exit 1
+fi
+}
+
+check() {
+if ! ls -1 &packages;/${KERNEL_V%%-*}/ | grep -q "${PACKAGE}" ; then
+  LAT_PACKAGE="$(wget -qO- https://api.github.com/repos/ich777/unraid-aquacomputer-d5next/releases/tags/${KERNEL_V} | jq -r '.assets[].name' | grep "${PACKAGE}" | grep -E -v '\.md5$' | sort -V | tail -1)"
+  echo
+  echo "-----------Downloading Aquacomputer D5Next package, please wait...!-----------"
+  echo "----------This could take some time, please don't close this window!----------"
+  download
+else
+  echo
+  echo "------------------Aquacomputer D5Next package found locally!------------------"
+fi
+}
+
+install() {
+# Install acd5next package
+/sbin/installpkg "&packages;/${KERNEL_V%%-*}/${PACKAGE}*.txz"
+depmod -a
+}
+
+activate() {
+# Modprobe acd5next module
+/sbin/modprobe aquacomputer_d5next
+}
+
+# Define Variables
+KERNEL_V="$(uname -r)"
+PACKAGE="aquacomputer_d5next"
+DL_URL="https://github.com/ich777/unraid-aquacomputer-d5next/releases/download/$KERNEL_V"
+
+if [ ! -d "&packages;/${KERNEL_V%%-*}" ]; then
+  mkdir -p "&packages;/${KERNEL_V%%-*}"
+fi
+
+#Check for old packages
+rm -rf $(ls -d &packages;/* | grep -v "${KERNEL_V%%-*}")
+
+if [ ! -f "&plugin;/&name;.png" ]; then
+  wget -q -nc --show-progress --progress=bar:force:noscroll -O "&plugin;/&name;.png" "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/aquacomputer.png"
+fi
+
+#Check if acd5next package is already downloaded
+check
+
+# Check if acd5next package module is already installed
+if ! modinfo aquacomputer_d5next -0 >/dev/null 2>&amp;1 ; then
+  echo
+  echo "-----------Installing Aquacomputer D5Next package, please wait...!------------"
+  install > /dev/null
+  activate
+  echo
+  echo "-----------Installation of Aquacomputer D5Next package successful-------------"
+  echo
+else
+  activate
+  echo
+  echo "------------Installation of Aquacomputer D5Next package successful------------"
+fi
+
+#Install icon
+if [ ! -f "&emhttp;/images/&name;.png" ]; then
+  if [ ! -d "&emhttp;/images" ]; then
+    mkdir -p &emhttp;/images
+  fi
+  cp &plugin;/&name;.png &emhttp;/images/
+fi
+
+## Fix for broken sensor readings
+#if [ -f /boot/config/plugins/dynamix.system.temp/sensors.conf ]; then
+#  sed -i '/quadro-hid/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
+#fi
+#if [ -f /etc/sensors.d/sensors.conf ]; then
+#  sed -i '/quadro-hid/,+1d' /etc/sensors.d/sensors.conf
+#fi
+
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+
+echo "----------------------------------------------"
+echo "---Uninstalling Aquacomputer D5Next package---"
+echo "----------------------------------------------"
+# Remove plugin related files
+rm -rf &emhttp; &plugin;
+echo
+echo "-------------------------------------------------------------------------"
+echo "---Aquacomputer D5Next package uninstalled, please reboot your server!---"
+echo "-------------------------------------------------------------------------"
+echo
+
+</INLINE>
+</FILE>
+</PLUGIN>
