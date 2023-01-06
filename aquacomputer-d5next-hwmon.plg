@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "aquacomputer-d5next-hwmon">
   <!ENTITY author    "ich777">
-  <!ENTITY version   "2022.12.14">
+  <!ENTITY version   "2023.01.06">
   <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-aquacomputer-d5next/master">
   <!ENTITY pluginURL "&gitURL;/&name;.plg">
   <!ENTITY plugin    "/boot/config/plugins/&name;">
@@ -13,6 +13,9 @@
 <PLUGIN  name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" min="6.11.5" support="https://forums.unraid.net/topic/92865-support-ich777-amd-vendor-reset-coraltpu-hpsahba/">
 
 <CHANGES>
+
+###2023.01.06
+- Fixed bug in correction for broken sensor readings
 
 ###2022.07.26
 - Initial release
@@ -121,10 +124,10 @@ fi
 
 # Fix for broken sensor readings
 if [ -f /boot/config/plugins/dynamix.system.temp/sensors.conf ]; then
-  sed -i '/quadro-hid-3-b/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
+  sed -i '/quadro-hid-3-/,+1d' /boot/config/plugins/dynamix.system.temp/sensors.conf
 fi
 if [ -f /etc/sensors.d/sensors.conf ]; then
-  sed -i '/quadro-hid-3-b/,+1d' /etc/sensors.d/sensors.conf
+  sed -i '/quadro-hid-3-/,+1d' /etc/sensors.d/sensors.conf
 fi
 
 </INLINE>
