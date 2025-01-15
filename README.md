@@ -1,3 +1,5 @@
+# DEPRECATED - the driver is mostly included in the Kernel
+
 # Unraid Aquacomputer D5 Next hwmon plugin
 
 This package contains a hwmon Linux Kernel driver for exposing sensors from various Aquacomputer devices (D5 Next, Quadro, Aquastream XT,...).  
